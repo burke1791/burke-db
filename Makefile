@@ -1,6 +1,6 @@
 
 all: bin
-	gcc -o bin/cli src/cli/main.c src/cli/cli.c
+	gcc -Isrc/include -o bin/cli src/cli/main.c src/cli/cli.c src/config/config.c
 
 bin:
 	mkdir bin

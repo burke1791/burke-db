@@ -25,4 +25,6 @@ bool read_input(InputBuffer* buf);
 CLI_Command parse_command(char* cmd);
 bool execute_cli_command(CLI_Command cmd);
 
+void print_config();
+
 #endif /* CLI_H */

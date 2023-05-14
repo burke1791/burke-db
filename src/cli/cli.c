@@ -4,6 +4,9 @@
 #include <stdbool.h>
 
 #include "include/cli.h"
+#include "config/config.h"
+
+extern Config* conf;
 
 InputBuffer* new_input_buffer() {
   InputBuffer* buf = malloc(sizeof(InputBuffer));
@@ -69,4 +72,9 @@ bool execute_cli_command(CLI_Command cmd) {
       printf("Unrecognized CLI_COMMAND\n");
       return false;
   }
+}
+
+void print_config() {
+  printf("DATA_DIR: %s\n", conf->dataDir);
+  printf("PAGE_SIZE: %d\n", conf->pageSize);
 }
