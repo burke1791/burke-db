@@ -1,8 +1,10 @@
 #include <unistd.h>
+#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
-#include "config.h"
+#include "config/config.h"
 
 static ConfigParameter parse_config_param(char* p) {
   if (strcmp(p, "DATA_DIR") == 0) return CONF_DATA_DIR;
@@ -14,7 +16,8 @@ static ConfigParameter parse_config_param(char* p) {
 static void set_config_value(Config* conf, ConfigParameter p, char* v) {
   switch (p) {
     case CONF_DATA_DIR:
-      conf->dataDir = v;
+      v[strcspn(v, "\r\n")] = 0; // remove the trailing newline character if it exists
+      conf->dataDir = strdup(v);
       break;
     case CONF_PAGE_SIZE:
       conf->pageSize = atoi(v);
@@ -27,8 +30,6 @@ static void set_config_value(Config* conf, ConfigParameter p, char* v) {
  * from the repo root) and sets the global config values specified in the file
 */
 static FILE* read_config_file() {
-  FILE* fp;
-
   FILE* fp = fopen("config.conf", "r");
   
   return fp;
@@ -63,10 +64,17 @@ bool set_global_config(Config* conf) {
 
     if (p == CONF_UNRECOGNIZED) continue;
 
-    set_config_value(conf, param, value);
+    set_config_value(conf, p, value);
   }
 
   if (line) free(line);
 
+  close_config_file(fp);
+
   return true;
+}
+
+void free_config(Config* conf) {
+  if (conf->dataDir != NULL) free(conf->dataDir);
+  free(conf);
 }

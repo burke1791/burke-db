@@ -17,4 +17,6 @@ typedef struct {
 
 bool set_global_config(Config* conf);
 
+void free_config(Config* conf);
+
 #endif /* PAGE_H */
