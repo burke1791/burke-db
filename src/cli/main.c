@@ -4,6 +4,7 @@
 
 #include "include/cli.h"
 #include "config/config.h"
+#include "include/initdb.h"
 
 Config* conf;
 
@@ -19,6 +20,8 @@ int main(int argc, char* argv[]) {
   }
 
   print_config();
+
+  initdb();
 
   // main control loop
   while (cliState) {
