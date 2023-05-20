@@ -43,4 +43,6 @@ void free_page(DataPage* pg);
 DataPage* read_page_from_disk(char* tableName, uint64_t pageNo);
 void write_page_to_disk(char* tableName, DataPage* pg, uint64_t pageNo);
 
+bool page_is_full(DataPage* pg, int requiredSpace);
+
 #endif /* PAGE_H */

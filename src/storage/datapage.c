@@ -125,3 +125,17 @@ void write_page_to_disk(char* tableName, DataPage* pg, uint64_t pageNo) {
   free(filename);
   close_file(fd);
 }
+
+bool page_is_full(DataPage* pg, int requiredSpace) {
+  int availableSpace;
+
+  // when pd_upper = 0, the page is empty
+  if (pg->pd_upper == 0) {
+    availableSpace = conf->pageSize - PAGE_HEADER_LENGTH;
+  } else {
+    availableSpace = pg->pd_upper - pg->pd_lower;
+  }
+
+  if (availableSpace >= requiredSpace) return false;
+  return true;
+}

@@ -11,7 +11,7 @@ extern Config* conf;
  * blank page to disk.
 */
 void initdb() {
-  char* tableName = "employee";
+  char* tableName = conf->tableName;
 
   DataPage* pg = read_page_from_disk(tableName, 0);
 
