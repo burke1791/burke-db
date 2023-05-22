@@ -28,13 +28,13 @@ static char* get_full_filename(char* tableName) {
  * Allocates memory for an empty data page and
  * zeros its contents
 */
-DataPage* allocate_page() {
-  DataPage* pg = malloc(conf->pageSize);
+DataPage allocate_page() {
+  DataPage pg = malloc(conf->pageSize);
   memset(pg, 0, conf->pageSize);
   return pg;
 }
 
-void free_page(DataPage* pg) {
+void free_page(DataPage pg) {
   free(pg);
 }
 
@@ -43,14 +43,14 @@ void free_page(DataPage* pg) {
  * the provided value. All other header fields are set to
  * values representative of a blank page.
 */
-DataPage* page_init(uint64_t pageNo) {
-  DataPage* pg = allocate_page();
+DataPage page_init(uint64_t pageNo) {
+  DataPage pg = allocate_page();
 
-  pg->pd_page_no = pageNo;
+  ((DataPageHeader*)pg)->pd_page_no = pageNo;
 
   // initialize pd_lower and pd_upper
-  pg->pd_lower = PAGE_HEADER_LENGTH;
-  pg->pd_upper = 0;
+  ((DataPageHeader*)pg)->pd_lower = PAGE_HEADER_LENGTH;
+  ((DataPageHeader*)pg)->pd_upper = 0;
 
   return pg;
 }
@@ -68,7 +68,7 @@ static void close_file(int fd) {
   close(fd);
 }
 
-DataPage* read_page_from_disk(char* tableName, uint64_t pageNo) {
+DataPage read_page_from_disk(char* tableName, uint64_t pageNo) {
   char* filename = get_full_filename(tableName);
 
   int fd = open_file(filename);
@@ -80,7 +80,7 @@ DataPage* read_page_from_disk(char* tableName, uint64_t pageNo) {
 
   off_t offset = lseek(fd, pageNo * conf->pageSize, SEEK_SET);
 
-  DataPage* pg = page_init(pageNo);
+  DataPage pg = page_init(pageNo);
   ssize_t bytes_read = read(fd, pg, conf->pageSize);
 
   if (bytes_read == -1) {
@@ -100,7 +100,7 @@ DataPage* read_page_from_disk(char* tableName, uint64_t pageNo) {
   return pg;
 }
 
-void write_page_to_disk(char* tableName, DataPage* pg, uint64_t pageNo) {
+void write_page_to_disk(char* tableName, DataPage pg, uint64_t pageNo) {
   char* filename = get_full_filename(tableName);
 
   int fd = open_file(filename);
@@ -126,14 +126,14 @@ void write_page_to_disk(char* tableName, DataPage* pg, uint64_t pageNo) {
   close_file(fd);
 }
 
-bool page_is_full(DataPage* pg, int requiredSpace) {
+bool page_is_full(DataPage pg, int requiredSpace) {
   int availableSpace;
 
   // when pd_upper = 0, the page is empty
-  if (pg->pd_upper == 0) {
+  if (((DataPageHeader*)pg)->pd_upper == 0) {
     availableSpace = conf->pageSize - PAGE_HEADER_LENGTH;
   } else {
-    availableSpace = pg->pd_upper - pg->pd_lower;
+    availableSpace = ((DataPageHeader*)pg)->pd_upper - ((DataPageHeader*)pg)->pd_lower;
   }
 
   if (availableSpace >= requiredSpace) return false;

@@ -1,4 +1,6 @@
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "config/config.h"
 #include "employee/emp_tuple.h"
@@ -6,13 +8,13 @@
 
 extern Config* conf;
 
-EmpTuple* allocate_tuple() {
-  EmpTuple* tup = malloc(EMP_TUPLE_SIZE);
+EmpTuple allocate_tuple() {
+  EmpTuple tup = malloc(EMP_TUPLE_SIZE);
   memset(tup, 0, EMP_TUPLE_SIZE);
   return tup;
 }
 
-int serialize_tuple(EmpTuple* tup, int64_t empId, char* name) {
+int serialize_tuple(EmpTuple tup, int64_t empId, char* name) {
   if (strlen(name) > 20) {
     printf("name: '%s' exceeds allowable length\n", name);
     return -1;
@@ -23,17 +25,18 @@ int serialize_tuple(EmpTuple* tup, int64_t empId, char* name) {
    * since our table currently doesn't have nullable
    * columns, we do not need a Null bitmap
   */
-  tup->t_hoff = 23;
+  ((EmpTupleHeader*)tup)->t_hoff = 23;
+  
 
   /* set our column values in the user data space of the tuple */
   memcpy(tup + EMP_ID_OFFSET, &empId, 8);
-  memcpy(tup + EMP_NAME_OFFSET, name, 20);
+  memcpy(tup + EMP_NAME_OFFSET, name, strlen(name));
 
   return EMP_TUPLE_SIZE;
 }
 
-int insert_tuple(char* tableName, EmpTuple* tup) {
-  DataPage* pg = read_page_from_disk(conf->tableName, 0);
+int insert_tuple(char* tableName, EmpTuple tup) {
+  DataPage pg = read_page_from_disk(conf->tableName, 0);
 
   if (pg == NULL) {
     printf("Unable to insert tuple\n");
@@ -46,36 +49,50 @@ int insert_tuple(char* tableName, EmpTuple* tup) {
   }
 
   // copy tuple data to the correct spot on the page
-  int tupleLoc;
+  uint16_t tupOffset;
 
   // an empty page has pd_upper = 0
-  if (pg->pd_upper == 0) {
-    tupleLoc = pg + conf->pageSize - EMP_TUPLE_SIZE;
+  if (((DataPageHeader*)pg)->pd_upper == 0) {
+    tupOffset = conf->pageSize - EMP_TUPLE_SIZE;
   } else {
-    tupleLoc = pg + pg->pd_upper - EMP_TUPLE_SIZE;
+    tupOffset = ((DataPageHeader*)pg)->pd_upper - EMP_TUPLE_SIZE;
   }
 
-  memcpy(tupleLoc, tup, EMP_TUPLE_SIZE);
+  memcpy(pg + tupOffset, tup, EMP_TUPLE_SIZE);
 
   // update pd_upper
-  pg->pd_upper = tupleLoc;
+  ((DataPageHeader*)pg)->pd_upper = tupOffset;
 
   LinePointer* lp = malloc(4);
   memset(lp, 0, 4);
-  lp->lp_off = tupleLoc;
+  lp->lp_off = tupOffset;
   lp->lp_len = EMP_TUPLE_SIZE;
 
   // copy line pointer data to the end of the line pointer array
-  int lpLoc = pg + pg->pd_lower;
-  memcpy(lpLoc, lp, 4);
+  int lpOffset = ((DataPageHeader*)pg)->pd_lower;
+  memcpy(pg + lpOffset, lp, 4);
 
   // update pd_lower
-  pg->pd_lower = lpLoc + 4;
+  ((DataPageHeader*)pg)->pd_lower = lpOffset + 4;
 
-  write_page_to_disk(conf->tableName, pg, pg->pd_page_no);
+  write_page_to_disk(conf->tableName, pg, ((DataPageHeader*)pg)->pd_page_no);
 
   free(tup);
   free_page(pg);
 
   return 1;
+}
+
+Employee* emp_copy(Employee* emp) {
+  Employee* empCp = malloc(sizeof(Employee));
+
+  empCp->empId = emp->empId;
+  empCp->name = strdup(emp->name);
+
+  return empCp;
+}
+
+void emp_free(Employee* emp) {
+  if (emp->name != NULL) free(emp->name);
+  free(emp);
 }

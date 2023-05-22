@@ -7,7 +7,9 @@
 #define EMP_ID_OFFSET 23
 #define EMP_NAME_OFFSET 31
 
-typedef struct EmpTuple {
+typedef char* EmpTuple;
+
+typedef struct EmpTupleHeader {
   int32_t t_xmin;         /* currently unused - int instead of uint
                              because this value can be negative */
   int32_t t_xmax;         /* currently unused - int instead of uint
@@ -21,10 +23,25 @@ typedef struct EmpTuple {
   /* ^ 23 byte tuple header ^ */
 
   /* Remaining space is used by the Null bitmap and user data */
-} EmpTuple;
+} EmpTupleHeader;
 
-EmpTuple* allocate_tuple();
-int serialize_tuple(EmpTuple* tup, int64_t empId, char* name);
-int insert_tuple(char* tableName, EmpTuple* tup);
+/**
+ * This struct is a convenience data type that gives us
+ * an easy way to return data to the CLI
+*/
+typedef struct Employee {
+  int64_t empId;
+  char* name;
+} Employee;
+
+EmpTuple allocate_tuple();
+int serialize_tuple(EmpTuple tup, int64_t empId, char* name);
+int insert_tuple(char* tableName, EmpTuple tup);
+
+EmpTuple select_tuple(int tupId);
+Employee* deserialize_tuple(EmpTuple tup);
+
+Employee* emp_copy(Employee* emp);
+void emp_free(Employee* emp);
 
 #endif /* EMP_TUPLE_H */

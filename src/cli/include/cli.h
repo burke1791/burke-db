@@ -23,7 +23,7 @@ void print_prompt();
 bool read_input(InputBuffer* buf);
 
 CLI_Command parse_command(char* cmd);
-bool execute_cli_command(CLI_Command cmd);
+bool execute_cli_command(CLI_Command cmd, char* val);
 
 void print_config();
 

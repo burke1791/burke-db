@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     if (!cliState) break;
 
     CLI_Command cmd = parse_command(buf->buffer);
-    cliState = execute_cli_command(cmd);
+    cliState = execute_cli_command(cmd, buf->buffer);
   }
 
   free_input_buffer(buf);

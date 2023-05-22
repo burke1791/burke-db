@@ -13,7 +13,7 @@ extern Config* conf;
 void initdb() {
   char* tableName = conf->tableName;
 
-  DataPage* pg = read_page_from_disk(tableName, 0);
+  DataPage pg = read_page_from_disk(tableName, 0);
 
   if (pg == NULL) {
     printf("Initializing %s table\n", tableName);
