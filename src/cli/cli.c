@@ -85,7 +85,6 @@ static void execute_select() {
       numTuples = (((DataPageHeader*)pg)->pd_lower - PAGE_HEADER_LENGTH) / 4;
       while (tupId < numTuples) {
         memcpy(lp, pg + PAGE_HEADER_LENGTH + (tupId * sizeof(LinePointer)), sizeof(LinePointer));
-        printf("lp_len: %d\n", lp->lp_len);
         memcpy(tup, pg + lp->lp_off, lp->lp_len);
 
         memcpy(&(emp->empId), tup + EMP_ID_OFFSET, 8);

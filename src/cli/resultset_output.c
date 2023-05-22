@@ -5,7 +5,7 @@
 
 #include "include/resultset_output.h"
 
-#define EMP_ID_WIDTH 13
+#define EMP_ID_WIDTH 11
 #define EMP_NAME_WIDTH 20
 
 static void print_cell_with_padding(char* cell, int padLen, bool isRightAligned) {
@@ -20,7 +20,7 @@ static void print_cell_with_padding(char* cell, int padLen, bool isRightAligned)
 
 static void print_column_headers() {
   printf("|");
-  print_cell_with_padding("employee_id", EMP_ID_WIDTH - 11, false);
+  print_cell_with_padding("employee_id", 0, false);
   print_cell_with_padding("name", EMP_NAME_WIDTH - 4, false);
   printf("\n");
 
