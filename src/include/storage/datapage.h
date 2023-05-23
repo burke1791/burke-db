@@ -3,16 +3,11 @@
 
 #include <stdint.h>
 
-#define PAGE_HEADER_LENGTH 24
+#define PAGE_HEADER_LENGTH 8
 
 #define PD_PAGE_NO_OFFSET 0
-#define PD_CHECKSUM_OFFSET 8
-#define PD_FLAGS_OFFSET 10
-#define PD_LOWER_OFFSET 12
-#define PD_UPPER_OFFSET 14
-#define PD_SPECIAL_OFFSET 16
-#define PD_PAGESIZE_VERSION_OFFSET 18
-#define PD_PRUNE_XID_OFFSET 20
+#define PD_LOWER_OFFSET 4
+#define PD_UPPER_OFFSET 6
 
 typedef char* DataPage;
 
@@ -24,14 +19,9 @@ typedef struct LinePointer {
 
 typedef struct DataPageHeader {
   /* Page Header Fields */
-  uint64_t pd_page_no;
-  uint16_t pd_checksum;
-  uint16_t pd_flags;
+  uint32_t pd_page_no;
   uint16_t pd_lower;
   uint16_t pd_upper;
-  uint16_t pd_special;
-  uint16_t pd_pagesize_version;
-  uint32_t pd_prune_xid;
 
   LinePointer** pd_linep;
 

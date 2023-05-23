@@ -22,10 +22,12 @@ int serialize_tuple(EmpTuple tup, int64_t empId, char* name) {
   
   /**
    * set t_hoff to the header size of this tuple.
-   * since our table currently doesn't have nullable
-   * columns, we do not need a Null bitmap
   */
-  ((EmpTupleHeader*)tup)->t_hoff = 23;
+  ((EmpTupleHeader*)tup)->t_hoff = 2;
+
+  // if (strcmp(name, "NULL") == 0) {
+  //   // ((EmpTupleHeader*)tup)->t_null_bitmap[1] = 1;
+  // }
   
 
   /* set our column values in the user data space of the tuple */

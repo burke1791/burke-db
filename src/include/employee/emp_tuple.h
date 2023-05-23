@@ -3,26 +3,27 @@
 
 #include <stdint.h>
 
-#define EMP_TUPLE_SIZE 51  /* header (23 bytes) + BigInt (8 bytes) + Char(20) (20 bytes) */
-#define EMP_ID_OFFSET 23
-#define EMP_NAME_OFFSET 31
+/**
+ * header (1 byte)
+ * 2-col Null bitmap (1 byte)
+ * BigInt (8-bytes)
+ * Char(20) (20 bytes)
+*/
+#define EMP_TUPLE_SIZE 30
+
+#define EMP_ID_OFFSET 2
+#define EMP_NAME_OFFSET 10
 
 typedef char* EmpTuple;
 
 typedef struct EmpTupleHeader {
-  int32_t t_xmin;         /* currently unused - int instead of uint
-                             because this value can be negative */
-  int32_t t_xmax;         /* currently unused - int instead of uint
-                             because this value can be negative */
-  uint32_t t_cid;         /* currently unused */
-  uint32_t t_ctid;        /* currently unused */
-  uint16_t t_infomask2;   /* currently unused */
-  uint16_t t_infomask;    /* currently unused */
   uint8_t t_hoff;         /* byte length of the header, including the Null bitmap */
 
-  /* ^ 23 byte tuple header ^ */
+  /* ^ tuple header ^ */
 
-  /* Remaining space is used by the Null bitmap and user data */
+  uint8_t t_null_bitmap[]    /* null bitmap */
+
+  /* Remaining space is used by user data */
 } EmpTupleHeader;
 
 /**
