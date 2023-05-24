@@ -9,6 +9,7 @@
 static ConfigParameter parse_config_param(char* p) {
   if (strcmp(p, "DATA_DIR") == 0) return CONF_DATA_DIR;
   if (strcmp(p, "PAGE_SIZE") == 0) return CONF_PAGE_SIZE;
+  if (strcmp(p, "TABLE_NAME") == 0) return CONF_TABLE_NAME;
 
   return CONF_UNRECOGNIZED;
 }
@@ -21,6 +22,10 @@ static void set_config_value(Config* conf, ConfigParameter p, char* v) {
       break;
     case CONF_PAGE_SIZE:
       conf->pageSize = atoi(v);
+      break;
+    case CONF_TABLE_NAME:
+      v[strcspn(v, "\r\n")] = 0; // remove the trailing newline character if it exists
+      conf->tableName = strdup(v);
       break;
   }
 }
@@ -76,5 +81,6 @@ bool set_global_config(Config* conf) {
 
 void free_config(Config* conf) {
   if (conf->dataDir != NULL) free(conf->dataDir);
+  if (conf->tableName != NULL) free(conf->tableName);
   free(conf);
 }
