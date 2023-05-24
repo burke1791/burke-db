@@ -25,11 +25,6 @@ int serialize_tuple(EmpTuple tup, int64_t empId, char* name) {
   */
   ((EmpTupleHeader*)tup)->t_hoff = 2;
 
-  // if (strcmp(name, "NULL") == 0) {
-  //   // ((EmpTupleHeader*)tup)->t_null_bitmap[1] = 1;
-  // }
-  
-
   /* set our column values in the user data space of the tuple */
   memcpy(tup + EMP_ID_OFFSET, &empId, 8);
   memcpy(tup + EMP_NAME_OFFSET, name, strlen(name));
