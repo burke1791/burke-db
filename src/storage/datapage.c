@@ -139,3 +139,58 @@ bool page_is_full(DataPage pg, int requiredSpace) {
   if (availableSpace >= requiredSpace) return false;
   return true;
 }
+
+void insert_tuple(TupleDescriptor* td, Datum* values, bool* isnull) {
+  int16_t dataLen = compute_tuple_size(td, values, isnull);
+  Tuple tup = malloc(dataLen);
+  memset(tup, 0, dataLen);
+
+  ((TupleHeader*)tup)->t_hoff = 2;
+  int16_t offset = ((TupleHeader*)tup)->t_hoff;
+
+  fill_tuple(td, tup + offset, values, isnull, ((TupleHeader*)tup)->t_null_bitmap);
+
+  DataPage pg = read_page_from_disk(conf->tableName, 0);
+
+  if (pg == NULL) {
+    printf("Unable to insert tuple\n");
+    return;
+  }
+
+  if (page_is_full(pg, dataLen + 4)) {
+    printf("Page is full. Need to implement adding pages\n");
+    return;
+  }
+
+  // copy tuple data to the correct spot on the page
+  uint16_t tupOffset;
+
+  // an empty page has pd_upper = 0
+  if (((DataPageHeader*)pg)->pd_upper == 0) {
+    tupOffset = conf->pageSize - dataLen;
+  } else {
+    tupOffset = ((DataPageHeader*)pg)->pd_upper - dataLen;
+  }
+
+  memcpy(pg + tupOffset, tup, dataLen);
+
+  // update pd_upper
+  ((DataPageHeader*)pg)->pd_upper = tupOffset;
+
+  LinePointer* lp = malloc(4);
+  memset(lp, 0, 4);
+  lp->lp_off = tupOffset;
+  lp->lp_len = dataLen;
+
+  // copy line pointer data to the end of the line pointer array
+  int lpOffset = ((DataPageHeader*)pg)->pd_lower;
+  memcpy(pg + lpOffset, lp, 4);
+
+  // update pd_lower
+  ((DataPageHeader*)pg)->pd_lower = lpOffset + 4;
+
+  write_page_to_disk(conf->tableName, pg, ((DataPageHeader*)pg)->pd_page_no);
+
+  free(tup);
+  free_page(pg);
+}

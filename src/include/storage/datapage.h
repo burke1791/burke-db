@@ -2,6 +2,9 @@
 #define PAGE_H
 
 #include <stdint.h>
+#include <stdbool.h>
+
+#include "tuple/tuple.h"
 
 #define PAGE_HEADER_LENGTH 8
 
@@ -36,5 +39,7 @@ DataPage read_page_from_disk(char* tableName, uint64_t pageNo);
 void write_page_to_disk(char* tableName, DataPage pg, uint64_t pageNo);
 
 bool page_is_full(DataPage pg, int requiredSpace);
+
+void insert_tuple(TupleDescriptor* td, Datum* values, bool* isnull);
 
 #endif /* PAGE_H */

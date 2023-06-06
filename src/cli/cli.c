@@ -6,10 +6,9 @@
 
 #include "include/cli.h"
 #include "config/config.h"
-#include "employee/emp_tuple.h"
-#include "include/emp_list.h"
 #include "storage/datapage.h"
 #include "include/resultset_output.h"
+#include "tuple/tuple.h"
 
 extern Config* conf;
 
@@ -67,7 +66,7 @@ static void execute_select() {
   List* res = new_list();
 
   LinePointer* lp = malloc(sizeof(LinePointer));
-  EmpTuple tup = malloc(EMP_TUPLE_SIZE);
+  Tuple tup = malloc(EMP_TUPLE_SIZE);
   Employee* emp = malloc(sizeof(Employee));
   emp->name = malloc(20);
 
@@ -112,16 +111,35 @@ static void execute_insert(char* val) {
   int64_t empId = atol(strtok(NULL, " "));
   char* name = strtok(NULL, " ");
 
-  EmpTuple tup = allocate_tuple();
+  TupleDescriptor* td = construct_tuple_desc(conf->tableName);
+  Datum* values = malloc(sizeof(Datum) * td->natts);
+  bool* isnull = malloc(sizeof(bool) * td->natts);
 
-  if (serialize_tuple(tup, empId, name) < 0) {
-    return;
+  // construct values and isnull arrays
+  for (int i = 0; i < td->natts; i++) {
+    switch (td->cols[i]->c_type) {
+      case DT_BIGINT:
+        values[i] = int64GetDatum(empId); // hard-coded for now
+        isnull[i] = false; // empId cannot be null
+        break;
+      case DT_CHAR:
+        if (strcmp(name, "NULL") == 0) {
+          values[i] = NULL;
+          isnull[i] = true;
+        } else {
+          char* strVal = malloc(21);
+          strcpy(strVal, name);
+          values[i] = charGetDatum(strVal);
+          isnull[i] = false;
+        }
+        break;
+      default:
+        printf("Unknown data type!\n");
+    }
   }
 
-  if (insert_tuple(conf->tableName, tup) < 0) {
-    return;
-  }
-
+  insert_tuple(td, values, isnull);
+  
   printf("Tuple inserted\n");
 }
 

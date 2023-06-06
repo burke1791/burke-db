@@ -4,9 +4,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "column.h"
+#include "datum.h"
 
-#define TUPLE_SIZE 2
+typedef enum DataType {
+  DT_BIGINT,
+  DT_CHAR,
+  DT_UNKNOWN
+} DataType;
+
+typedef struct Column {
+  char* c_name;
+  DataType c_type;
+  int c_num;
+  int c_len;
+  bool c_not_null;
+} Column;
 
 typedef struct TupleDescriptor {
 	int	natts;			/* number of attributes in the tuple */
@@ -14,7 +26,6 @@ typedef struct TupleDescriptor {
 	Column* cols[];
 }	TupleDescriptor;
 
-typedef unsigned long int Datum;
 typedef char* Tuple;
 
 typedef struct TupleHeader {
@@ -31,10 +42,12 @@ typedef struct TupleContainer {
   TupleHeader* t_data; /* tuple header and user data */
 } TupleContainer;
 
-TupleDescriptor* get_tup_descriptor(char* tablename);
-void construct_datum(void* values, )
-void calc_tup_len(TupleDescriptor* td, )
-TupleContainer* form_tuple(Datum* values, bool* isnull);
 
+TupleDescriptor* construct_tuple_desc(char* tablename);
+Column* get_column_desc(char* tablename, char* colname);
+
+uint16_t compute_tuple_size(TupleDescriptor* td, Datum* values, bool* isnull);
+
+void fill_tuple(TupleDescriptor* td, char* data, Datum* values, bool* isnull, uint8_t* bitmap);
 
 #endif /* TUPLE_H */

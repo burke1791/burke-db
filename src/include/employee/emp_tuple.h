@@ -14,17 +14,17 @@
 #define EMP_ID_OFFSET 2
 #define EMP_NAME_OFFSET 10
 
-typedef char* EmpTuple;
+// typedef char* EmpTuple;
 
-typedef struct EmpTupleHeader {
-  uint8_t t_hoff;         /* byte length of the header, including the Null bitmap */
+// typedef struct EmpTupleHeader {
+//   uint8_t t_hoff;         /* byte length of the header, including the Null bitmap */
 
-  /* ^ tuple header ^ */
+//   /* ^ tuple header ^ */
 
-  uint8_t t_null_bitmap[]    /* null bitmap */
+//   uint8_t t_null_bitmap[]    /* null bitmap */
 
-  /* Remaining space is used by user data */
-} EmpTupleHeader;
+//   /* Remaining space is used by user data */
+// } EmpTupleHeader;
 
 /**
  * This struct is a convenience data type that gives us
@@ -35,12 +35,12 @@ typedef struct Employee {
   char* name;
 } Employee;
 
-EmpTuple allocate_tuple();
-int serialize_tuple(EmpTuple tup, int64_t empId, char* name);
-int insert_tuple(char* tableName, EmpTuple tup);
+// EmpTuple allocate_tuple();
+// int serialize_tuple(EmpTuple tup, int64_t empId, char* name);
+// int insert_tuple(char* tableName, EmpTuple tup);
 
-EmpTuple select_tuple(int tupId);
-Employee* deserialize_tuple(EmpTuple tup);
+// EmpTuple select_tuple(int tupId);
+// Employee* deserialize_tuple(EmpTuple tup);
 
 Employee* emp_copy(Employee* emp);
 void emp_free(Employee* emp);

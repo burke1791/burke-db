@@ -1,8 +1,18 @@
 
 #include "tuple/datum.h"
 
-Datum* allocate_datum()
+Datum int64GetDatum(int64_t i) {
+  return (Datum) i;
+}
 
-Datum* construct_datum(char* tablename, int col_num, void* val) {
+Datum charGetDatum(char* c) {
+  return (Datum) c;
+}
 
+int64_t datumGetInt64(Datum d) {
+  return (int64_t) d;
+}
+
+char* datumGetString(Datum d) {
+  return (char*) d;
 }
