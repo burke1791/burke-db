@@ -63,7 +63,7 @@ static void execute_select() {
   uint64_t pageNo = 0;
   int tupId = 0;
   int numTuples;
-  List* res = new_list();
+  List* res = new_list(L_Row);
 
   TupleDescriptor* td = construct_tuple_desc(conf->tableName);
 
@@ -78,19 +78,24 @@ static void execute_select() {
     if (((DataPageHeader*)pg)->pd_upper != 0) {
       tupId = 0;
       numTuples = (((DataPageHeader*)pg)->pd_lower - PAGE_HEADER_LENGTH) / 4;
+      printf("test: 1\n");
       while (tupId < numTuples) {
         memcpy(lp, pg + PAGE_HEADER_LENGTH + (tupId * sizeof(LinePointer)), sizeof(LinePointer));
         Datum* values = get_tuple(td, pg, tupId);
-        
+        List* col = new_list(L_Col);
 
         for (int i = 0; i < td->natts; i++) {
+          ResultCell* c = malloc(sizeof(ResultCell));
+          c->col = td->cols[i];
+          printf("test: 2 | col: %d\n", i);
+          c->dat = values[i];
 
+          printf("test: 3 | col: %d\n", i);
+
+          list_append(col, c);
         }
 
-        memcpy(&(emp->empId), tup + EMP_ID_OFFSET, 8);
-        memcpy(emp->name, tup + EMP_NAME_OFFSET, 20);
-
-        list_append(res, emp);
+        list_append(res, col);
 
         tupId++;
       }
@@ -102,8 +107,6 @@ static void execute_select() {
   print_resultset(res);
   free_list(res);
   free(lp);
-  free(tup);
-  emp_free(emp);
 }
 
 static void execute_insert(char* val) {
@@ -125,7 +128,7 @@ static void execute_insert(char* val) {
         break;
       case DT_CHAR:
         if (strcmp(name, "NULL") == 0) {
-          values[i] = NULL;
+          values[i] = (Datum)NULL;
           isnull[i] = true;
         } else {
           char* strVal = malloc(21);

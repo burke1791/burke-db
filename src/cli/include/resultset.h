@@ -27,10 +27,10 @@ typedef struct List {
 
 typedef struct ResultCell {
   Column* col;
-  Datum* dat;
+  Datum dat;
 } ResultCell;
 
-List* new_list();
+List* new_list(ListType type);
 void free_list(List* l);
 void list_append(List* l, void* l_item);
 

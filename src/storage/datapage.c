@@ -205,26 +205,26 @@ Datum* get_tuple(TupleDescriptor* td, DataPage pg, int tupId) {
 
   LinePointer* lp = malloc(sizeof(LinePointer));
   memcpy(lp, pg + PAGE_HEADER_LENGTH + (tupId * sizeof(LinePointer)), sizeof(LinePointer));
-  int offset = lp->lp_off;
+  int tupOffset = lp->lp_off;
   int dataLen = lp->lp_len;
 
   Tuple tup = malloc(dataLen);
   memset(tup, 0, dataLen);
-  memcpy(tup, pg + offset, dataLen);
+  memcpy(tup, pg + tupOffset, dataLen);
 
   Datum* values = malloc(sizeof(Datum) * td->natts);
   uint8_t* bitmap = ((TupleHeader*)tup)->t_null_bitmap;
 
-  int offset = ((TupleHeader*)tup)->t_hoff;
+  int dataOffset = ((TupleHeader*)tup)->t_hoff;
   int attSize;
 
   for (int i = 0; i < td->natts; i++) {
     if (att_isnull(i, bitmap)) {
-      values[i] = NULL;
+      values[i] = (Datum)NULL;
     } else {
-      attSize = calculate_att_size(td->cols[i], tup, offset);
-      values[i] = get_tuple_att(td->cols[i], tup, offset, attSize);
-      offset += attSize;
+      attSize = calculate_att_size(td->cols[i], tup, dataOffset);
+      values[i] = get_tuple_att(td->cols[i], tup, dataOffset, attSize);
+      dataOffset += attSize;
     }
   }
 }
