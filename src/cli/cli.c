@@ -67,12 +67,7 @@ static void execute_select() {
 
   TupleDescriptor* td = construct_tuple_desc(conf->tableName);
 
-
-
   LinePointer* lp = malloc(sizeof(LinePointer));
-  Tuple tup = malloc(EMP_TUPLE_SIZE);
-  Employee* emp = malloc(sizeof(Employee));
-  emp->name = malloc(20);
 
   while (true) {
     DataPage pg = read_page_from_disk(conf->tableName, pageNo);
@@ -80,15 +75,17 @@ static void execute_select() {
       break;
     }
 
-    memset(lp, 0, 4);
-    memset(tup, 0, EMP_TUPLE_SIZE);
-
     if (((DataPageHeader*)pg)->pd_upper != 0) {
       tupId = 0;
       numTuples = (((DataPageHeader*)pg)->pd_lower - PAGE_HEADER_LENGTH) / 4;
       while (tupId < numTuples) {
         memcpy(lp, pg + PAGE_HEADER_LENGTH + (tupId * sizeof(LinePointer)), sizeof(LinePointer));
-        memcpy(tup, pg + lp->lp_off, lp->lp_len);
+        Datum* values = get_tuple(td, pg, tupId);
+        
+
+        for (int i = 0; i < td->natts; i++) {
+
+        }
 
         memcpy(&(emp->empId), tup + EMP_ID_OFFSET, 8);
         memcpy(emp->name, tup + EMP_NAME_OFFSET, 20);

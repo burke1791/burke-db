@@ -13,9 +13,10 @@ static inline ListItem* list_last_cell(const List *list) {
 	return &list->items[list->length];
 }
 
-List* new_list() {
+List* new_list(ListType type) {
   List* l = malloc(sizeof(List));
 
+  l->type = type;
   l->length = 0;
   l->max_length = 0;
   l->items = NULL;
