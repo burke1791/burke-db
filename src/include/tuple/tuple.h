@@ -42,6 +42,7 @@ typedef struct TupleContainer {
   TupleHeader* t_data; /* tuple header and user data */
 } TupleContainer;
 
+bool att_isnull(int attnum, uint8_t* bitmap);
 
 TupleDescriptor* construct_tuple_desc(char* tablename);
 Column* get_column_desc(char* tablename, char* colname);
@@ -49,5 +50,8 @@ Column* get_column_desc(char* tablename, char* colname);
 uint16_t compute_tuple_size(TupleDescriptor* td, Datum* values, bool* isnull);
 
 void fill_tuple(TupleDescriptor* td, char* data, Datum* values, bool* isnull, uint8_t* bitmap);
+
+calculate_att_size(Column* col, Tuple tup, int offset);
+Datum* get_tuple_att(Column* col, Tuple tup, int offset, int attSize);
 
 #endif /* TUPLE_H */

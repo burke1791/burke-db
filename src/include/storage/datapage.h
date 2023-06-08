@@ -42,4 +42,6 @@ bool page_is_full(DataPage pg, int requiredSpace);
 
 void insert_tuple(TupleDescriptor* td, Datum* values, bool* isnull);
 
+Datum* get_tuple(TupleDescriptor* td, DataPage pg, int tupId);
+
 #endif /* PAGE_H */

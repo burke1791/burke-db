@@ -7,7 +7,7 @@
 #include "include/cli.h"
 #include "config/config.h"
 #include "storage/datapage.h"
-#include "include/resultset_output.h"
+#include "include/resultset.h"
 #include "tuple/tuple.h"
 
 extern Config* conf;
@@ -64,6 +64,10 @@ static void execute_select() {
   int tupId = 0;
   int numTuples;
   List* res = new_list();
+
+  TupleDescriptor* td = construct_tuple_desc(conf->tableName);
+
+
 
   LinePointer* lp = malloc(sizeof(LinePointer));
   Tuple tup = malloc(EMP_TUPLE_SIZE);

@@ -4,6 +4,10 @@
 
 #include "tuple/tuple.h"
 
+bool att_isnull(int attnum, uint8_t* bitmap) {
+  return !(bitmap[attnum >> 3] & (1 << (attnum & 0x07)));
+}
+
 static TupleDescriptor* allocate_tuple_desc(int numCols) {
   TupleDescriptor* td = malloc(sizeof(TupleDescriptor) + (numCols * sizeof(Column)));
   return td;
@@ -97,7 +101,7 @@ static void fill_val(Column* col, uint8_t** bit, int* bitmask, char** dataP, Dat
         memcpy(data, str, strlen(str));
         break;
       case DT_UNKNOWN:
-        printf("Unknown data type!");
+        printf("Unknown data type! (fill_val)\n");
         break;
     }
 
@@ -128,4 +132,21 @@ void fill_tuple(TupleDescriptor* td, char* data, Datum* values, bool* isnull, ui
       isnull[i]
     );
   }
+}
+
+int calculate_att_size(Column* col, Tuple tup, int offset) {
+  switch (col->c_type) {
+    case DT_BIGINT:
+      return 8;
+    case DT_CHAR:
+      return col->c_len;
+    default:
+      printf("Unknown data type! (calculate_att_size)\n");
+  }
+}
+
+Datum* get_tuple_att(Column* col, Tuple tup, int offset, int attSize) {
+  Datum* d = malloc(attSize);
+  memset(d, 0, attSize);
+  memcpy(d, tup + offset, attSize);
 }
