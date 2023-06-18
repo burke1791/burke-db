@@ -61,7 +61,6 @@ void free_list(List* l) {
     case L_Row:
       for (int i = 0; i < l->length; i++) {
         free_list((List*)l->items[i].ptr_value);
-        free(l->items[i].ptr_value);
       }
       break;
     case L_Col:

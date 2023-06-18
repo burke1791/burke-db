@@ -145,8 +145,19 @@ int calculate_att_size(Column* col, Tuple tup, int offset) {
   }
 }
 
-Datum* get_tuple_att(Column* col, Tuple tup, int offset, int attSize) {
-  Datum* d = malloc(attSize);
-  memset(d, 0, attSize);
-  memcpy(d, tup + offset, attSize);
+Datum get_tuple_att(Column* col, Tuple tup, int offset, int attSize) {
+  switch (col->c_type) {
+    case DT_BIGINT:
+      int64_t bigInt;
+      memcpy(&bigInt, tup + offset, attSize);
+      return int64GetDatum(bigInt);
+    case DT_CHAR:
+      char* pChar = malloc(attSize + 1);
+      memcpy(pChar, tup + offset, attSize);
+      pChar[attSize] = '\0';
+      return charGetDatum(pChar);
+    default:
+      printf("Unknown data type! (get_tuple_att)");
+      return (Datum)NULL;
+  }
 }
